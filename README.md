@@ -38,7 +38,7 @@ To learn more, refer to the following resources:
     ```PowerShell
     Connect-MgGraph -Scopes "Application.ReadWrite.All, Directory.ReadWrite.All, Synchronization.ReadWrite.All"
     ```
-## Installing or updating GpadTools PowerShell Module
+## Installing or updating
 
 The **GpadTools PowerShell module** is available for install from [PowerShell Gallery](https://www.powershellgallery.com/packages/GpadTools/).
 
