@@ -10,7 +10,7 @@ other pecuniary loss) arising out of the use of or inability to use the scripts 
 even if Microsoft has been advised of the possibility of such damages. 
 ```
 
-# GPAD Tools PowerShell Module (GpadTools)
+# GPAD Tools PowerShell Module
 
 ## Overview
 The **Group Provisioning to Active Directory (GPAD) Tools PowerShell Module** streamlines the management of group provisioning from Microsoft Entra ID to Active Directory using the Microsoft Graph PowerShell SDK. This module provides a comprehensive set of cmdlets designed to:
