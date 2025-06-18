@@ -40,6 +40,8 @@ To learn more, refer to the following resources:
     ```
 ## Installing or updating GpadTools PowerShell Module
 
+The **GpadTools PowerShell module** is available for install from [PowerShell Gallery](https://www.powershellgallery.com/packages/GpadTools/).
+
 - Install module:
     ```PowerShell
     Install-Module GpadTools
