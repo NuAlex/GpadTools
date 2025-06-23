@@ -51,13 +51,13 @@ The **GpadTools PowerShell module** is available for install from [PowerShell Ga
     Uninstall-Module GpadTools
     Install-Module GpadTools
     ```
-    > Note: It is not recommended to use Update-Module GpadTools directly, as it may install the new version while leaving the old version. This can lead to version conflicts and unexpected behavior when loading the module.
+    > Note: I don't recommended using `Update-Module GpadTools`, as that will install the new version while leaving the old version. This can lead to version conflicts and unexpected behavior when loading the module.
 
 ## Usage
 
 Get all security groups enabled for writeback
 ```PowerShell
-Get-GpadCloudSecurityGroups | ft -AutoSize
+Get-GpadGroupFromEntra | ft -AutoSize
 ```
 ![Results from getting all security groups](https://github.com/user-attachments/assets/6fcb976a-7080-47c7-b757-a91f10bd8022)
 
@@ -69,45 +69,113 @@ Check if reconciliation is needed between a Microsoft Entra group and its corres
 
 Check if reconciliation is needed for all groups
 ```PowerShell
-Get-GpadCloudSecurityGroups | %{Confirm-GpadReconciliationNeeded -GroupId $_.Id}
+Get-GpadGroupFromEntra | %{Confirm-GpadReconciliationNeeded -GroupId $_.Id}
 ```
 ![Results from checking if reconciliation needed for all groups](https://github.com/user-attachments/assets/aaa33469-a851-4300-adcc-9f9d065c268a)
 
-Get Synchronization Job Identifiers
-```PowerShell
-$onDemandProv = Get-GpadSynchronizationIdentifiers -DomainName 'Contoso.com'
-```
 
-Call On-Demand provisioning for an Entra ID group (group reconciliation)
-```PowerShell
-$onDemandProv = Get-GpadSynchronizationIdentifiers -DomainName 'Contoso.com'
-$groupId = 'defc####-####-####-####-####b684b71a'
 
-Start-GpadOnDemandProvisionGroup -GroupId $groupId `
-    -ServicePrincipalId $onDemandProv.ServicePrincipalId  `
-    -SynchronizationJobId $onDemandProv.SynchronizationJobId  `
-    -SynchronizationRulesId $onDemandProv.SynchronizationRulesId
-``` 
-![Results from On-Demand provisioning for an Entra ID group](https://github.com/user-attachments/assets/35911db4-2d2b-4ce6-9f98-d0dd2a272aee)
 
-Call On-Demand provisioning for all groups needing reconciliation (group reconciliation in bulk)
-```PowerShell
-$onDemandProv = Get-GpadSynchronizationIdentifiers -DomainName 'Contoso.com'
-$groups = Get-GpadCloudSecurityGroups | %{Confirm-GpadReconciliationNeeded -GroupId $_.Id}
 
-$results = $groups | Where-Object {$_.ReconciliationNeeded -eq $true} | select -ExpandProperty Id |
-    Start-GpadOnDemandProvisionGroup `
-        -ServicePrincipalId $onDemandProv.ServicePrincipalId  `
-        -SynchronizationJobId $onDemandProv.SynchronizationJobId  `
-        -SynchronizationRulesId $onDemandProv.SynchronizationRulesId
-```
-![Results from On-Demand provisioning for all groups needing reconciliation](https://github.com/user-attachments/assets/99d36c2d-9ed0-4fb7-869a-e18671e916ab)
 
 ## Functions
 
+### Get-GpadCustomExtensionApplication
+
+Retrieves the Microsoft Entra ID application used for Cloud Sync custom extensions.
+
+Returns:
+Entra Application object
+
+Example:
+```PowerShell
+ Get-GpadCustomExtensionApplication
+```
+
+### Get-GpadCustomExtensionAppServicePrincipal
+
+ Retrieves the service principal for the Cloud Sync custom extensions application.
+
+Returns:
+Entra Service Principal object
+
+Example:
+```PowerShell
+Get-GpadCustomExtensionAppServicePrincipal
+```
+
+### Get-GpadCustomExtensionProperty
+
+Retrieves custom extension properties from the Cloud Sync custom extensions application.
+
+Returns:
+Custom extension property
+
+Example:
+```PowerShell
+Get-GpadCustomExtensionProperty
+```
+
+### Get-GpadGroupFromAD
+
+Retrieves groups from Active Directory
+
+Returns:
+Active Directory object
+
+Example:
+```PowerShell
+Get-GpadGroupFromAD -GroupId <guid>
+```
+
+### Get-GpadGroupFromEntra
+
+Retrieves one or all security groups from Entra ID, excluding cloud M365 / Unified groups.
+Exposes the WritebackConfiguration property (group schema) and the WritebackEnabled custom extension (directory schema).
+
+Returns:
+
+Entra Group Object, or;
+
+`System.Collections.ArrayList` — List of security groups from Microsoft Entra.
+
+Example:
+```PowerShell
+Get-GpadGroupFromEntra
+```
+```PowerShell
+Get-GpadGroupFromEntra -GroupId <guid>
+```
+
+
+### Get-GpadGroupMembersFromAD
+
+Retrieves group members from an Active Directory Group
+
+Returns:
+List of Active Directory objects representing the group members
+
+Example:
+```PowerShell
+Get-GpadGroupMembersFromAD -GroupId <guid>
+```
+
+### Get-GpadGroupMembersFromEntra
+
+Retrieves the members of a group from Entra ID.
+With onPremisesSyncEnabledMembers switch, gets only the members that are synced from on-premises AD
+
+Returns:
+`System.Collections.ArrayList` — List of group members with object ID and type.
+
+Example:
+```PowerShell
+Get-GpadGroupMembersFromEntra -GroupId <guid>
+```
+
 ### Get-GpadWritebackEnabledExtensionName
 
-Retrieves the name of the custom extension property that indicates if writeback is enabled.
+Retrieves the name of the custom extension property used to determine if the group is enabled for writeback.
 
 Returns:
 `System.String` — Name of the custom extension property.
@@ -132,31 +200,65 @@ Example:
 Get-GpadSynchronizationIdentifiers -DomainName Contoso.com
 ```
 
-### Get-GpadCloudSecurityGroups
+### New-GpadCustomExtensionApplication
 
-Retrieves all cloud security groups excluding M365/Unified groups. Includes writeback configuration and extension.
-
-Returns:
-`System.Collections.ArrayList` — List of security groups from Microsoft Entra.
+Creates a new Cloud Sync custom extensions application in Microsoft Entra ID.
 
 Example:
 ```PowerShell
-Get-GpadCloudSecurityGroups
+New-GpadCustomExtensionApplication
 ```
 
-### Get-GpadSyncedGroupMembers
+### New-GpadCustomExtensionAppServicePrincipal
 
-Retrieves members of a specified group that are synchronized from on-premises AD.
-
-Parameters:
-`-GroupId <String>`: ID of the group.
+Creates a service principal for the Cloud Sync custom extensions application.
 
 Returns:
-`System.Collections.ArrayList` — List of group members with object ID and type.
+`System.String` — Name of...
 
 Example:
 ```PowerShell
-Get-GpadSyncedGroupMembers -GroupId '3b10####-####-####-####-####9835c3e0'
+New-GpadCustomExtensionAppServicePrincipal
+```
+
+### New-GpadCustomExtensionProperty
+
+Creates a new custom extension property on the Cloud Sync custom extensions application.
+
+Example:
+```PowerShell
+New-GpadCustomExtensionProperty
+```
+
+### Remove-GpadCustomExtensionProperty
+
+Removes a custom extension property from the Cloud Sync custom extensions application.
+
+Example:
+```PowerShell
+Remove-GpadCustomExtensionProperty
+```
+
+### Set-GpadWritebackConfiguration
+
+Set IsEnabled True/False property in WritebackConfiguration
+This function sets the WritebackConfiguration.IsEnabled property (Group schema) for a group in Entra ID
+To get this group property use Get-GpadGroupFromEntra
+
+Example:
+```PowerShell
+Set-GpadWritebackConfiguration -GroupId "3b10####-####-####-####-####9835c3e0" -IsEnabled $true
+```
+
+### Set-GpadWritebackEnabledExtension
+
+Sets the WritebackEnabled customer extension for a cloud group.
+This function updates (True/False) the WritebackEnabled custom extension (directory schema) for a given group.
+To get this group property use Get-GpadGroupFromEntra
+
+Example:
+```PowerShell
+Set-GpadWritebackEnabledExtension -GroupId "3b10####-####-####-####-####9835c3e0" -Value 'True'
 ```
 
 
@@ -189,54 +291,4 @@ Confirm-GpadReconciliationNeeded -GroupId "3b10####-####-####-####-####9835c3e0"
 ```PowerShell
 Confirm-GpadReconciliationNeeded -GroupId "3b10####-####-####-####-####9835c3e0" -GroupWritebackOU "OU=Groups,DC=Contoso,DC=com"
 ```
-
-### Start-GpadOnDemandProvisionGroup
-
-Triggers synchronization job on-demand for Entra ID groups.
-
-Parameters:
-
-`-GroupId <String[]>`: One or more Entra ID group IDs.
-
-`-ServicePrincipalId <String>`
-
-`-SynchronizationJobId <String>`
-
-`-SynchronizationRulesId <String>`
-
-`-GroupWritebackOU <String> (Optional)`
-
-Example:
-```PowerShell
-$prov = Get-GpadSynchronizationIdentifiers -DomainName 'Contoso.com'`
-
-Start-GpadOnDemandProvisionGroup -GroupId '3b10####-####-####-####-####9835c3e0' `
--ServicePrincipalId $prov.ServicePrincipalId `
--SynchronizationJobId $prov.SynchronizationJobId `
--SynchronizationRulesId $prov.SynchronizationRulesId `
--GroupWritebackOU 'OU=GWB,OU=SYNC,DC=Contoso,DC=com'
-```
-
-### Set-GpadWritebackEnabledExtension
-
-Sets the WritebackEnabled property and extension for a cloud group.
-
-Parameters:
-
-`-GroupId <String[]>`: One or more Entra ID group IDs.
-
-`-Value <String>`: Set WritebackEnabled True or False
-
-Example:
-```PowerShell
-Set-GpadWritebackEnabledExtension -GroupId '3b10####-####-####-####-####9835c3e0' -Value $true
-```
-
-### Get-GpadToolsGraphInvoke (Internal)
-
-Internal function to call Microsoft Graph API with optional filters and headers.
-
-### Import-GpadToolsGraphModule (Internal)
-
-Internal function to import required Microsoft Graph modules.
 
