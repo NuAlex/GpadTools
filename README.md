@@ -6,10 +6,12 @@
 
 The Group Provisioning to Active Directory (GPAD) Tools PowerShell Module streamlines the management of group provisioning from Microsoft Entra ID to Active Directory using the Microsoft Graph PowerShell SDK. This module provides a comprehensive set of cmdlets designed to:
 
-• Ensure consistency of group memberships between Microsoft Entra ID and on-premises Active Directory.
 • Manage directory extension attributes used for group writeback filtering.
+
 • Perform reconciliation checks between cloud and on-premises groups.
+
 • Configure writeback settings for individual groups or in bulk.
+
 
 To learn more, refer to the following resources:
 
@@ -18,6 +20,14 @@ To learn more, refer to the following resources:
 • [Provision Microsoft Entra ID to Active Directory - Configuration](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/how-to-configure-entra-to-active-directory)
 
 • [Scenario - Using directory extensions with group provisioning to Active Directory](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/tutorial-directory-extension-group-provisioning)
+
+### Important information about reconciliation for Group Provisioning to AD
+
+If a group is deleted from on-premises Active Directory, Microsoft Connect Cloud Sync will not automatically recreate it. In such cases, we recommend using the **Active Directory Recycle Bin** to restore the original group.
+
+The function `Confirm-GpadReconciliationNeeded` checks if reconciliation is needed between an Entra ID group and its corresponding on-premises AD group.
+If there's a mismatch between the group in Entra and its corresponding on-premises group—typically caused by changes made directly on-premises—this function can help identify missing members to re-add or extra members to remove. If the cause of the inconsistency is unclear, please open a support case for further investigation.
+
 
 ## Prerequisites
 
@@ -74,10 +84,6 @@ Get-GpadGroupFromEntra | ForEach-Object { Confirm-GpadReconciliationNeeded -Grou
 ```powershell
 Get-GpadGroupFromEntra | select -ExpandProperty Id | Confirm-GpadReconciliationNeeded
 ```
-
-> **Important**
-> 
-> If there's a mismatch between the group in Entra and its corresponding on-premises group—typically caused by changes made directly on-premises—this function can help identify missing members to re-add or extra members to remove. If the cause of the inconsistency is unclear, please open a support case for further investigation.
 
 ## Functions
 
