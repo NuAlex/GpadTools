@@ -48,6 +48,18 @@ The GpadTools PowerShell module is available for install from [PowerShell Galler
 Get-GpadGroupFromEntra | Format-Table -AutoSize
 ```
 
+### Set writeback configuration for a group
+
+```powershell
+Set-GpadWritebackConfiguration -GroupId "3b10####-####-####-####-####9835c3e0" -IsEnabled $true
+```
+
+### Set writeback enabled extension for a group
+
+```powershell
+Set-GpadWritebackEnabledExtension -GroupId "3b10####-####-####-####-####9835c3e0" -IsEnabled $true
+```
+
 ### Check if reconciliation is needed between a Microsoft Entra group and its corresponding on-premises Active Directory group
 
 ```powershell
@@ -60,17 +72,7 @@ Get-GpadGroupFromEntra | Format-Table -AutoSize
 Get-GpadGroupFromEntra | ForEach-Object { Confirm-GpadReconciliationNeeded -GroupId $_.Id }
 ```
 
-### Set writeback configuration for a group
-
-```powershell
-Set-GpadWritebackConfiguration -GroupId "3b10####-####-####-####-####9835c3e0" -IsEnabled $true
-```
-
-### Set writeback enabled extension for a group
-
-```powershell
-Set-GpadWritebackEnabledExtension -GroupId "3b10####-####-####-####-####9835c3e0" -IsEnabled $true
-```
+> **Important**: If there's a mismatch between the group in Entra and its corresponding on-premises group—typically caused by changes made directly on-premises—this function can help identify missing members to re-add or extra members to remove. If the cause of the inconsistency is unclear, please open a support case for further investigation.
 
 ## Functions
 
