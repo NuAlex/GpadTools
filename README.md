@@ -71,8 +71,13 @@ Set-GpadWritebackEnabledExtension -GroupId "3b10####-####-####-####-####9835c3e0
 ```powershell
 Get-GpadGroupFromEntra | ForEach-Object { Confirm-GpadReconciliationNeeded -GroupId $_.Id }
 ```
+```powershell
+Get-GpadGroupFromEntra | select -ExpandProperty Id | Confirm-GpadReconciliationNeeded
+```
 
-> **Important**: If there's a mismatch between the group in Entra and its corresponding on-premises group—typically caused by changes made directly on-premises—this function can help identify missing members to re-add or extra members to remove. If the cause of the inconsistency is unclear, please open a support case for further investigation.
+> **Important**
+> 
+> If there's a mismatch between the group in Entra and its corresponding on-premises group—typically caused by changes made directly on-premises—this function can help identify missing members to re-add or extra members to remove. If the cause of the inconsistency is unclear, please open a support case for further investigation.
 
 ## Functions
 
