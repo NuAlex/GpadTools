@@ -42,6 +42,7 @@ If there's a mismatch between the group in Entra and its corresponding on-premis
 The GpadTools PowerShell module is available for install from [PowerShell Gallery](https://www.powershellgallery.com/packages/GpadTools/).
 
 • **Install module**: `Install-Module GpadTools`
+
 • **Update module** (if already installed): 
   ```powershell
   Uninstall-Module GpadTools
