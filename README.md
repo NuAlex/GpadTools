@@ -86,6 +86,24 @@ Get-GpadGroupFromEntra | ForEach-Object { Confirm-GpadReconciliationNeeded -Grou
 Get-GpadGroupFromEntra | select -ExpandProperty Id | Confirm-GpadReconciliationNeeded
 ```
 
+### Get Cloud Sync scale report (security groups and users)
+
+```powershell
+Get-GpadCloudSyncScaleReport
+```
+
+### Get Cloud Sync scale report using extension-based scoping
+
+```powershell
+Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408eaf4253792d641449_WritebackEnabled"
+```
+
+```powershell
+Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408eaf4253792d641449_WritebackEnabled" -CustomExtApplicationName "CloudSyncCustomExtensionsApp"
+```
+
+> Note: See Cloud Sync [Scale limits](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/how-to-prerequisites?tabs=public-cloud#scale-limits) for more information.
+
 ## Functions
 
 ### Get-GpadCustomExtensionApplication
@@ -119,6 +137,39 @@ Retrieves custom extension properties from the Cloud Sync custom extensions appl
 **Example:**
 ```powershell
 Get-GpadCustomExtensionProperty
+```
+
+### Get-GpadCloudSyncScaleReport
+
+Retrieves Cloud Sync scale metrics for Entra ID users and cloud security groups.
+
+The cmdlet retrieves security groups (excluding Unified/M365 groups), gets per-group membership counts via Graph batch,
+and returns a summary object plus detailed group rows.
+
+Scoping behavior:
+- Without `-ExtensionPropertyName`: all returned security groups are in scope.
+- With `-ExtensionPropertyName`: only groups where the extension value evaluates to True are in scope (`$true`, `"true"`, `"1"`, `"yes"`).
+
+**Parameters:**
+- `-ExtensionPropertyName <String>` (Optional): Full custom extension property name (for example `extension_<AppIdNoHyphens>_WritebackEnabled`).
+- `-CustomExtApplicationName <String>` (Optional): Custom extensions application name used to validate the extension property.
+
+**Returns:** `PSCustomObject` with:
+- `TotalEntraIdUsers`
+- `TotalEntraIdSecurityGroups`
+- `TotalMembershipsInScope`
+- `TotalGroupsInScope` (only when `-ExtensionPropertyName` is provided)
+- `Groups` (collection with `GroupId`, `GroupDisplayName`, `MemberCount`, and optional extension column)
+
+**Examples:**
+```powershell
+Get-GpadCloudSyncScaleReport
+```
+```powershell
+Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408eaf4253792d641449_WritebackEnabled"
+```
+```powershell
+Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408eaf4253792d641449_WritebackEnabled" -CustomExtApplicationName "MyCustomExtensionsApp"
 ```
 
 ### Get-GpadGroupFromAD
