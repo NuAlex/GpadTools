@@ -86,7 +86,9 @@ Get-GpadGroupFromEntra | ForEach-Object { Confirm-GpadReconciliationNeeded -Grou
 Get-GpadGroupFromEntra | select -ExpandProperty Id | Confirm-GpadReconciliationNeeded
 ```
 
-### Get Cloud Sync scale report (security groups and users)
+### Get Cloud Sync scale report (all security groups)
+
+> Note: See Cloud Sync [Scale limits](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/how-to-prerequisites?tabs=public-cloud#scale-limits) for more information.
 
 ```powershell
 Get-GpadCloudSyncScaleReport
@@ -101,8 +103,12 @@ Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408ea
 ```powershell
 Get-GpadCloudSyncScaleReport -ExtensionPropertyName "extension_2396ac015aa0408eaf4253792d641449_WritebackEnabled" -CustomExtApplicationName "CloudSyncCustomExtensionsApp"
 ```
+### Export Cloud Sync scale report object to a file and then use Import-Clixml to read the results
 
-> Note: See Cloud Sync [Scale limits](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/how-to-prerequisites?tabs=public-cloud#scale-limits) for more information.
+```powershell
+Get-GpadCloudSyncScaleReport | Export-Clixml CloudSyncScaleReport.cliXml
+Import-Clixml CloudSyncScaleReport.cliXml
+```
 
 ## Functions
 
@@ -142,6 +148,7 @@ Get-GpadCustomExtensionProperty
 ### Get-GpadCloudSyncScaleReport
 
 Retrieves Cloud Sync scale metrics for Entra ID users and cloud security groups.
+See Cloud Sync [Scale limits](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/how-to-prerequisites?tabs=public-cloud#scale-limits) for more information.
 
 The cmdlet retrieves security groups (excluding Unified/M365 groups), gets per-group membership counts via Graph batch,
 and returns a summary object plus detailed group rows.
